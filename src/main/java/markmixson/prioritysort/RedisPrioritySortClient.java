@@ -23,25 +23,25 @@ public class RedisPrioritySortClient implements PrioritySortClient {
 
     @Language("lua")
     private static final String ADD_UPDATE_LUA_SCRIPT = """
-                    local indexname, setname, id = unpack(KEYS)
-                    local data = unpack(ARGV)
-                    local previous = redis.call('hget', setname, id)
-                    if previous then
-                        redis.call('zrem', indexname, previous)
-                        redis.call('hdel', setname, id)
-                    end
-                    local output = redis.call('zadd', indexname, 0, data)
-                    redis.call('hset', setname, id, data)
-                    return output
+            local indexname, setname, id = unpack(KEYS)
+            local data = unpack(ARGV)
+            local previous = redis.call('hget', setname, id)
+            if previous then
+                redis.call('zrem', indexname, previous)
+                redis.call('hdel', setname, id)
+            end
+            local output = redis.call('zadd', indexname, 0, data)
+            redis.call('hset', setname, id, data)
+            return output
             """;
 
     @Language("lua")
     private static final String DEL_LUA_SCRIPT = """
-                    local indexname, setname, id = unpack(KEYS)
-                    local byteData = redis.call('hget', setname, id)
-                    local output = redis.call('zrem', indexname, byteData)
-                    redis.call('hdel', setname, id)
-                    return output
+            local indexname, setname, id = unpack(KEYS)
+            local byteData = redis.call('hget', setname, id)
+            local output = redis.call('zrem', indexname, byteData)
+            redis.call('hdel', setname, id)
+            return output
             """;
 
     private final BoundedAsyncPool<StatefulRedisConnection<String, byte[]>> connectionPool;
