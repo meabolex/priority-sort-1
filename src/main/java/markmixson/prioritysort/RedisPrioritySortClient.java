@@ -2,6 +2,7 @@ package markmixson.prioritysort;
 
 import java.util.Objects;
 
+import org.intellij.lang.annotations.Language;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,7 @@ import reactor.core.publisher.Mono;
 @Getter(AccessLevel.PRIVATE)
 public class RedisPrioritySortClient implements PrioritySortClient {
 
+    @Language("lua")
     private static final String ADD_UPDATE_LUA_SCRIPT = """
                     local indexname, setname, id = unpack(KEYS)
                     local data = unpack(ARGV)
@@ -33,6 +35,7 @@ public class RedisPrioritySortClient implements PrioritySortClient {
                     return output
             """;
 
+    @Language("lua")
     private static final String DEL_LUA_SCRIPT = """
                     local indexname, setname, id = unpack(KEYS)
                     local byteData = redis.call('hget', setname, id)
