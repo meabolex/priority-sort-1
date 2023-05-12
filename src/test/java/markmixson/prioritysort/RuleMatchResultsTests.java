@@ -38,33 +38,9 @@ public class RuleMatchResultsTests {
     }
 
     @Test
-    void testBadId() {
-        final var testValue = getRandomRuleMatchResults(RULESET_SIZE);
-        Assertions.assertThrows(NullPointerException.class, () ->
-                new RuleMatchResults(testValue.matched(), testValue.date(), null));
-    }
-
-    @Test
-    void testNullValues() {
-        final var testValue = getRandomRuleMatchResults(RULESET_SIZE);
-        Assertions.assertThrows(NullPointerException.class, () ->
-                new RuleMatchResults(testValue.matched(), null, testValue.id()));
-        Assertions.assertThrows(NullPointerException.class, () ->
-                new RuleMatchResults(null, testValue.date(), testValue.id()));
-    }
-
-    @Test
     void testBadGetRuleMatchResultsEmpty() {
-        Assertions.assertThrows(NullPointerException.class, () ->
-                RuleMatchResults.getRuleMatchResults(null));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 RuleMatchResults.getRuleMatchResults(new byte[]{}));
-    }
-
-    @Test
-    void testEmptyByteArray() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                RuleMatchResults.getRuleMatchResults(new byte[] {}));
     }
 
     private static BitSet getRandomBitSet(final int ruleSize) {

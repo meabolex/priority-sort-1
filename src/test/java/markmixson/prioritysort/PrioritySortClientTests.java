@@ -1,5 +1,17 @@
 package markmixson.prioritysort;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
+import reactor.test.StepVerifier;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -11,22 +23,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
-
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.SneakyThrows;
-import reactor.test.StepVerifier;
 
 @SpringBootTest
 @Getter(AccessLevel.PRIVATE)
@@ -44,7 +42,7 @@ public class PrioritySortClientTests {
      * All Fibonacci numbers below 64.
      */
     private static final RuleMatchResults FIRST = new RuleMatchResults(
-            GENERATOR.generate(new int[] { 0, 1, 2, 3, 5, 8, 13, 21, 34, 55 },
+            GENERATOR.generate(new int[]{0, 1, 2, 3, 5, 8, 13, 21, 34, 55},
                     BITSET_LENGTH),
             ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()),
             1356357L);
@@ -53,7 +51,7 @@ public class PrioritySortClientTests {
      * Minus 55.
      */
     private static final RuleMatchResults SECOND = new RuleMatchResults(
-            GENERATOR.generate(new int[] { 0, 1, 2, 3, 5, 8, 13, 21, 34 },
+            GENERATOR.generate(new int[]{0, 1, 2, 3, 5, 8, 13, 21, 34},
                     BITSET_LENGTH),
             ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()),
             5367367L);
@@ -62,7 +60,7 @@ public class PrioritySortClientTests {
      * Minus 8.
      */
     private static final RuleMatchResults THIRD = new RuleMatchResults(
-            GENERATOR.generate(new int[] { 0, 1, 2, 3, 5, 13, 21, 34, 55 },
+            GENERATOR.generate(new int[]{0, 1, 2, 3, 5, 13, 21, 34, 55},
                     BITSET_LENGTH),
             ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()),
             4356356L);
@@ -71,7 +69,7 @@ public class PrioritySortClientTests {
      * Minus 0.
      */
     private static final RuleMatchResults FOURTH = new RuleMatchResults(
-            GENERATOR.generate(new int[] { 1, 2, 3, 5, 8, 13, 21, 34, 55 },
+            GENERATOR.generate(new int[]{1, 2, 3, 5, 8, 13, 21, 34, 55},
                     BITSET_LENGTH),
             ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()),
             -12314L);
@@ -80,7 +78,7 @@ public class PrioritySortClientTests {
      * Minus 0 and 10 seconds later.
      */
     private static final RuleMatchResults FIFTH = new RuleMatchResults(
-            GENERATOR.generate(new int[] { 1, 2, 3, 5, 8, 13, 21, 34, 55 },
+            GENERATOR.generate(new int[]{1, 2, 3, 5, 8, 13, 21, 34, 55},
                     BITSET_LENGTH),
             ZonedDateTime.ofInstant(CLOCK.instant().plus(Duration.ofSeconds(10)), CLOCK.getZone()),
             33573573567356356L);
@@ -89,7 +87,7 @@ public class PrioritySortClientTests {
      * Minus 0 and 55.
      */
     private static final RuleMatchResults SIXTH = new RuleMatchResults(
-            GENERATOR.generate(new int[] { 1, 2, 3, 5, 8, 13, 21, 34 }, BITSET_LENGTH),
+            GENERATOR.generate(new int[]{1, 2, 3, 5, 8, 13, 21, 34}, BITSET_LENGTH),
             ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()),
             0L);
 
@@ -97,7 +95,7 @@ public class PrioritySortClientTests {
      * Updated first to have lowest results
      */
     private static final RuleMatchResults UPDATED_FIRST = new RuleMatchResults(
-            GENERATOR.generate(new int[] { 0 },
+            GENERATOR.generate(new int[]{0},
                     BITSET_LENGTH),
             ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()),
             1356357L);
@@ -107,7 +105,7 @@ public class PrioritySortClientTests {
      * 1 match
      */
     private static final RuleMatchResults ONE_MATCH = new RuleMatchResults(
-            GENERATOR.generate(new int[] { 0 },
+            GENERATOR.generate(new int[]{0},
                     1),
             ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()),
             1L);
@@ -116,7 +114,7 @@ public class PrioritySortClientTests {
      * 0 matches
      */
     private static final RuleMatchResults ZERO_MATCHES = new RuleMatchResults(
-            GENERATOR.generate(new int[] { },
+            GENERATOR.generate(new int[]{},
                     1),
             ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()),
             0L);
@@ -132,14 +130,17 @@ public class PrioritySortClientTests {
 
     @AfterEach
     void cleanUp() {
-        getPrioritySortClient().clear().block();
+        StepVerifier.create(getPrioritySortClient().clear())
+                .expectNextCount(1)
+                .expectComplete()
+                .verify();
     }
 
     @Test
     void testGetPriorities() {
         final var results = RULE_MATCH_RESULTS.stream()
                 .map(RuleMatchResults::id)
-                .collect(Collectors.toList());
+                .toList();
         doAddOrUpdateTestData();
         StepVerifier.create(getPrioritySortClient().getTopPriorities(results.size()).collectList())
                 .expectNext(results)
@@ -248,9 +249,11 @@ public class PrioritySortClientTests {
     @SneakyThrows
     private void doLargeNumberOfAdds() {
         final var results = getRandomIds().stream()
-                .<Callable<Long>>map(
-                        id -> () -> getPrioritySortClient().addOrUpdate(getRandomRuleMatchResults(id)).block())
-                .collect(Collectors.toList());
+                .<Callable<Void>>map(id -> () -> {
+                    getPrioritySortClient().addOrUpdate(getRandomRuleMatchResults(id)).block();
+                    return null;
+                })
+                .toList();
         try (var executor = Executors.newWorkStealingPool(PARALLEL_PROCESSES)) {
             final var output = executor.invokeAll(results);
             Assertions.assertEquals(LARGE_DATA_COUNT, output.size());
@@ -259,19 +262,17 @@ public class PrioritySortClientTests {
 
     @SneakyThrows
     private void doAddOrUpdateTestData() {
-        final var results = RULE_MATCH_RESULTS_SCRAMBLED.stream()
-                .<Callable<Long>>map(result -> () -> getPrioritySortClient().addOrUpdate(result).block())
-                .collect(Collectors.toList());
-        try (var executor = Executors.newWorkStealingPool(PARALLEL_PROCESSES)) {
-            final var output = executor.invokeAll(results);
-            Assertions.assertEquals(RULE_MATCH_RESULTS_SCRAMBLED.size(), output.size());
-        }
+        final var results = RULE_MATCH_RESULTS_SCRAMBLED.parallelStream()
+                .map(result -> getPrioritySortClient().addOrUpdate(result).block())
+                .toList();
+        Assertions.assertEquals(RULE_MATCH_RESULTS_SCRAMBLED.size(), results.size());
     }
 
     private RuleMatchResults getRandomRuleMatchResults(final Long id) {
         final var matches = GENERATOR.generate(getRandomMatches(), LARGE_RULE_COUNT);
         final var epochSecond = RANDOM.nextLong(CLOCK.instant().getEpochSecond());
-        final var date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSecond), ZoneId.of("UTC"));
+        final var date =
+                ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSecond), ZoneId.of("UTC"));
         return new RuleMatchResults(matches, date, id);
     }
 
@@ -279,14 +280,18 @@ public class PrioritySortClientTests {
         final var matches = new ArrayList<Integer>();
         IntStream.range(0, LARGE_RULE_COUNT).forEach(matches::add);
         Collections.shuffle(matches, RANDOM);
+        randomizeMatches(matches);
+        return matches.stream()
+                .mapToInt(x -> x)
+                .toArray();
+    }
+
+    private void randomizeMatches(final ArrayList<Integer> matches) {
         for (var i = matches.size() - 1; i >= 0; i--) {
             if (!RANDOM.nextBoolean()) {
                 matches.remove(i);
             }
         }
-        return matches.stream()
-                .mapToInt(x -> x)
-                .toArray();
     }
 
     private List<Long> getRandomIds() {

@@ -1,18 +1,16 @@
 package markmixson.prioritysort;
 
-import java.util.Objects;
-
-import org.intellij.lang.annotations.Language;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import io.lettuce.core.Range;
 import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.support.BoundedAsyncPool;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.intellij.lang.annotations.Language;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -55,10 +53,9 @@ public class RedisPrioritySortClient implements PrioritySortClient {
     private String prioritySortSetName;
 
     @Override
-    public Mono<Long> addOrUpdate(final RuleMatchResults results) {
-        Objects.requireNonNull(results, "results cannot be empty!");
-        final var keys = new String[] { getPrioritySortIndexName(), getPrioritySortSetName(), results.id().toString() };
-        final var values = new byte[][] { results.toByteArray() };
+    public Mono<Long> addOrUpdate(@NonNull final RuleMatchResults results) {
+        final var keys = new String[]{getPrioritySortIndexName(), getPrioritySortSetName(), results.id().toString()};
+        final var values = new byte[][]{results.toByteArray()};
         return Mono.fromFuture(() -> getConnectionPool().acquire())
                 .flatMap(connection -> connection.reactive()
                         .<Long>eval(ADD_UPDATE_LUA_SCRIPT, ScriptOutputType.INTEGER, keys, values).next()
@@ -67,7 +64,7 @@ public class RedisPrioritySortClient implements PrioritySortClient {
 
     @Override
     public Mono<Long> delete(long id) {
-        final var keys = new String[] { getPrioritySortIndexName(), getPrioritySortSetName(), Long.toString(id) };
+        final var keys = new String[]{getPrioritySortIndexName(), getPrioritySortSetName(), Long.toString(id)};
         return Mono.fromFuture(() -> getConnectionPool().acquire())
                 .flatMap(connection -> connection.reactive()
                         .<Long>eval(DEL_LUA_SCRIPT, ScriptOutputType.INTEGER, keys).next()

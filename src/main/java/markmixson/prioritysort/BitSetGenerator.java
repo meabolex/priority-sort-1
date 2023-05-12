@@ -1,12 +1,13 @@
 package markmixson.prioritysort;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.stream.Stream;
-
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Gets a {@link BitSet} that can be used inside {@link RuleMatchResults}.
@@ -29,7 +30,7 @@ public class BitSetGenerator {
      * @param length the requested length.
      * @return the bitset
      */
-    public BitSet generate(final int[] values, final int length) {
+    public BitSet generate(final int @NonNull [] values, final int length) {
         if (Arrays.stream(values).anyMatch(value -> value > length)) {
             throw new IllegalArgumentException("Invalid bitset length!  Must be greater than biggest value");
         }
