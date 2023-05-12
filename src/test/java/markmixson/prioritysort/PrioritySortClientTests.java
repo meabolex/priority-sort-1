@@ -103,6 +103,25 @@ public class PrioritySortClientTests {
             1356357L);
 
 
+    /**
+     * 1 match
+     */
+    private static final RuleMatchResults ONE_MATCH = new RuleMatchResults(
+            GENERATOR.generate(new int[] { 0 },
+                    1),
+            ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()),
+            1L);
+
+    /**
+     * 0 matches
+     */
+    private static final RuleMatchResults ZERO_MATCHES = new RuleMatchResults(
+            GENERATOR.generate(new int[] { },
+                    1),
+            ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()),
+            0L);
+
+
     private static final List<RuleMatchResults> RULE_MATCH_RESULTS = List.of(FIRST, SECOND, THIRD, FOURTH, FIFTH,
             SIXTH);
     private static final List<RuleMatchResults> RULE_MATCH_RESULTS_SCRAMBLED = List.of(THIRD, FOURTH, FIRST, FIFTH,
@@ -162,6 +181,22 @@ public class PrioritySortClientTests {
                 .verify();
         StepVerifier.create(getPrioritySortClient().getTopPriority())
                 .expectNext(FIRST.id())
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    void testSingleRule() {
+        StepVerifier.create(getPrioritySortClient().addOrUpdate(ONE_MATCH))
+                .expectNext(1L)
+                .expectComplete()
+                .verify();
+        StepVerifier.create(getPrioritySortClient().addOrUpdate(ZERO_MATCHES))
+                .expectNext(1L)
+                .expectComplete()
+                .verify();
+        StepVerifier.create(getPrioritySortClient().getTopPriority())
+                .expectNext(ONE_MATCH.id())
                 .expectComplete()
                 .verify();
     }
