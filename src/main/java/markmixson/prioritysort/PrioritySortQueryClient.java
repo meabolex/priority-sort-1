@@ -12,6 +12,7 @@ public interface PrioritySortQueryClient {
     /**
      * Gets the top priority id from the index.
      *
+     * @param suffix the suffix to use on the redis key.
      * @return a {@link Mono} representing the id with the top priority.
      */
     Mono<Long> getTopPriority(@NonNull String suffix);
@@ -19,6 +20,7 @@ public interface PrioritySortQueryClient {
     /**
      * Gets the top N priorities ids from the index in order.
      *
+     * @param suffix the suffix to use on the redis key.
      * @param count the number of priorities to get.
      * @return a {@link Flux} representing the top N priority ids.
      */
@@ -27,6 +29,7 @@ public interface PrioritySortQueryClient {
     /**
      * Gets the top priority id from the index.
      *
+     * @param suffix the suffix to use on the redis key.
      * @return a {@link Mono} representing the id with the top priority.
      */
     Mono<RuleMatchResults> getTopPriorityRuleMatchResult(@NonNull String suffix);
@@ -34,6 +37,7 @@ public interface PrioritySortQueryClient {
     /**
      * Gets the top N priorities ids from the index in order.
      *
+     * @param suffix the suffix to use on the redis key.
      * @param count the number of priorities to get.
      * @return a {@link Flux} representing the top N priority ids.
      */
@@ -42,6 +46,7 @@ public interface PrioritySortQueryClient {
     /**
      * Gets the overall count of elements in the index.
      *
+     * @param suffix the suffix to use on the redis key.
      * @return a {@link Mono} representing the count of priorities in the index.
      */
     Mono<Long> getIndexCount(@NonNull String suffix);
