@@ -1,16 +1,19 @@
 package markmixson.prioritysort;
 
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
  * Redis client for priority sort.
- * @param mutation mutation client
- * @param query query client
  */
 @Component
-@SuppressWarnings("unused")
-public record RedisPrioritySortClient(
-        @NonNull PrioritySortMutationClient mutation,
-        @NonNull PrioritySortQueryClient query) {
+@RequiredArgsConstructor
+@Getter
+public class RedisPrioritySortClient {
+    @NonNull
+    private final PrioritySortMutationClient mutation;
+    @NonNull
+    private final PrioritySortQueryClient query;
 }

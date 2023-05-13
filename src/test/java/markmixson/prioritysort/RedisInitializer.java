@@ -1,13 +1,13 @@
 package markmixson.prioritysort;
 
-import java.util.List;
-
 import lombok.NonNull;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
+
+import java.util.List;
 
 public class RedisInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
     private static final int CONTAINER_REDIS_PORT = 6379;
@@ -22,7 +22,7 @@ public class RedisInitializer implements ApplicationContextInitializer<Configura
                     Runtime.getRuntime().availableProcessors() / 2));
 
     @Override
-    public void initialize(@NonNull ConfigurableApplicationContext context) {
+    public void initialize(@NonNull final ConfigurableApplicationContext context) {
         final var binding = String.format("%d:%d", CONTAINER_REDIS_PORT, CONTAINER_REDIS_PORT);
         REDIS.setPortBindings(List.of(binding));
         REDIS.start();

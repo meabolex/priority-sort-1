@@ -3,7 +3,6 @@ package markmixson.prioritysort;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
-import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -29,9 +28,8 @@ public class RedisPrioritySortClientTests {
     RedisPrioritySortClient client;
 
     protected void doAddOrUpdateTestData(@NonNull final String suffix) {
-        final var results = RULE_MATCH_RESULTS_SCRAMBLED.parallelStream()
-                .map(result -> getClient().mutation().addOrUpdate(suffix, result).block())
-                .toList();
-        Assertions.assertEquals(RULE_MATCH_RESULTS_SCRAMBLED.size(), results.size());
+        RULE_MATCH_RESULTS_SCRAMBLED.parallelStream()
+                .forEach(result -> getClient().getMutation().addOrUpdate(suffix, result)
+                        .block());
     }
 }

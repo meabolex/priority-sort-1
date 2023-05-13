@@ -8,6 +8,6 @@ public class BitSetGeneratorTests {
     @Test
     void testGeneratorValueBiggerThanLength() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
-                new BitSetGenerator().generate(new int[] { 100 }, 99));
+                new BitSetGenerator().generate(new int[]{100}, 99));
     }
 }

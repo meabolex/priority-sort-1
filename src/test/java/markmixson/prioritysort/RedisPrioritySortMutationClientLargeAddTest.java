@@ -32,24 +32,25 @@ public class RedisPrioritySortMutationClientLargeAddTest extends RedisPrioritySo
     private static final int LARGE_DATA_COUNT = 1_500_000;
     private static final String LARGE_ADD_SUFFIX = "largeadd";
     private static final int[] ALL_SELECTED = IntStream.range(0, LARGE_RULE_COUNT).toArray();
-    private static final RuleMatchResults HIGHEST_POSSIBLE = new RuleMatchResults(
-            GENERATOR.generate(ALL_SELECTED, LARGE_RULE_COUNT),
-            ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()),
-            Long.MAX_VALUE);
+    private static final RuleMatchResults HIGHEST_POSSIBLE = RuleMatchResults.builder()
+            .matched(GENERATOR.generate(ALL_SELECTED, LARGE_RULE_COUNT))
+            .date(ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()))
+            .id(Long.MAX_VALUE)
+            .build();
 
     @Test
     @EnabledIfEnvironmentVariable(named = "RUN_BIG_TESTS", matches = "true")
     void testLargeNumberOfAdds() {
-        StepVerifier.create(getClient().mutation().addOrUpdate(LARGE_ADD_SUFFIX, HIGHEST_POSSIBLE))
+        StepVerifier.create(getClient().getMutation().addOrUpdate(LARGE_ADD_SUFFIX, HIGHEST_POSSIBLE))
                 .expectNext(1L)
                 .expectComplete()
                 .verify();
         doLargeNumberOfAdds();
-        StepVerifier.create(getClient().query().getTopPriority(LARGE_ADD_SUFFIX))
+        StepVerifier.create(getClient().getQuery().getTopPriority(LARGE_ADD_SUFFIX))
                 .expectNext(Long.MAX_VALUE)
                 .expectComplete()
                 .verify();
-        StepVerifier.create(getClient().query().getIndexCount(LARGE_ADD_SUFFIX))
+        StepVerifier.create(getClient().getQuery().getIndexCount(LARGE_ADD_SUFFIX))
                 .expectNext((long) (LARGE_DATA_COUNT + 1))
                 .expectComplete()
                 .verify();
@@ -59,7 +60,7 @@ public class RedisPrioritySortMutationClientLargeAddTest extends RedisPrioritySo
     private void doLargeNumberOfAdds() {
         final var results = getRandomIds().stream()
                 .<Callable<Void>>map(id -> () -> {
-                    getClient().mutation().addOrUpdate(LARGE_ADD_SUFFIX, getRandomRuleMatchResults(id)).block();
+                    getClient().getMutation().addOrUpdate(LARGE_ADD_SUFFIX, getRandomRuleMatchResults(id)).block();
                     return null;
                 })
                 .toList();
@@ -70,11 +71,12 @@ public class RedisPrioritySortMutationClientLargeAddTest extends RedisPrioritySo
     }
 
     private RuleMatchResults getRandomRuleMatchResults(@NonNull final Long id) {
-        final var matches = GENERATOR.generate(getRandomMatches(), LARGE_RULE_COUNT);
         final var epochSecond = RANDOM.nextLong(CLOCK.instant().getEpochSecond());
-        final var date =
-                ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSecond), ZoneId.of("UTC"));
-        return new RuleMatchResults(matches, date, id);
+        return RuleMatchResults.builder()
+                .matched(GENERATOR.generate(getRandomMatches(), LARGE_RULE_COUNT))
+                .date(ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSecond), ZoneId.of("UTC")))
+                .id(id)
+                .build();
     }
 
     private int[] getRandomMatches() {
