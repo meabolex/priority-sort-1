@@ -14,12 +14,12 @@ public class RedisPrioritySortQueryClientTests extends RedisPrioritySortClientTe
 
     @BeforeEach
     void setUp() {
-        doAddOrUpdateTestData(QUERY_SUFFIX, getMutationClient());
+        doAddOrUpdateTestData(QUERY_SUFFIX, getClient());
     }
 
     @AfterEach
     void cleanUp() {
-        StepVerifier.create(getMutationClient().clear(QUERY_SUFFIX))
+        StepVerifier.create(getClient().mutation().clear(QUERY_SUFFIX))
                 .expectNextCount(1)
                 .expectComplete()
                 .verify();
@@ -30,7 +30,7 @@ public class RedisPrioritySortQueryClientTests extends RedisPrioritySortClientTe
         final var results = RULE_MATCH_RESULTS.stream()
                 .map(RuleMatchResults::id)
                 .toList();
-        StepVerifier.create(getQueryClient().getTopPriorities(QUERY_SUFFIX, results.size()).collectList())
+        StepVerifier.create(getClient().query().getTopPriorities(QUERY_SUFFIX, results.size()).collectList())
                 .expectNext(results)
                 .expectComplete()
                 .verify();
@@ -38,11 +38,11 @@ public class RedisPrioritySortQueryClientTests extends RedisPrioritySortClientTe
 
     @Test
     void testGetHighestPriority() {
-        StepVerifier.create(getQueryClient().getIndexCount(QUERY_SUFFIX))
+        StepVerifier.create(getClient().query().getIndexCount(QUERY_SUFFIX))
                 .expectNext((long) RULE_MATCH_RESULTS.size())
                 .expectComplete()
                 .verify();
-        StepVerifier.create(getQueryClient().getTopPriority(QUERY_SUFFIX))
+        StepVerifier.create(getClient().query().getTopPriority(QUERY_SUFFIX))
                 .expectNext(FIRST.id())
                 .expectComplete()
                 .verify();
@@ -50,7 +50,7 @@ public class RedisPrioritySortQueryClientTests extends RedisPrioritySortClientTe
 
     @Test
     void testGetHighestPriorityRuleMatchResults() {
-        StepVerifier.create(getQueryClient().getTopPriorityRuleMatchResult(QUERY_SUFFIX))
+        StepVerifier.create(getClient().query().getTopPriorityRuleMatchResult(QUERY_SUFFIX))
                 .expectNext(FIRST)
                 .expectComplete()
                 .verify();
@@ -58,7 +58,7 @@ public class RedisPrioritySortQueryClientTests extends RedisPrioritySortClientTe
 
     @Test
     void testGetRuleMatchResults() {
-        StepVerifier.create(getQueryClient().getRuleMatchResults(QUERY_SUFFIX, FIFTH.id()))
+        StepVerifier.create(getClient().query().getRuleMatchResults(QUERY_SUFFIX, FIFTH.id()))
                 .expectNext(FIFTH)
                 .expectComplete()
                 .verify();
@@ -66,7 +66,7 @@ public class RedisPrioritySortQueryClientTests extends RedisPrioritySortClientTe
 
     @Test
     void testAllGetRuleMatchResults() {
-        StepVerifier.create(getQueryClient().getAllRuleMatchResults(QUERY_SUFFIX).collectList())
+        StepVerifier.create(getClient().query().getAllRuleMatchResults(QUERY_SUFFIX).collectList())
                 .expectNextMatches(result -> result.containsAll(RULE_MATCH_RESULTS))
                 .expectComplete()
                 .verify();

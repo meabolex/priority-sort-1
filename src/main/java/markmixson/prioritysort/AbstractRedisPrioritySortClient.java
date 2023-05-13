@@ -2,8 +2,8 @@ package markmixson.prioritysort;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * Base class for Redis priority sort clients.
  */
 @Component
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Getter(AccessLevel.PRIVATE)
 @SuppressWarnings("SpringElInspection")
 public abstract class AbstractRedisPrioritySortClient {

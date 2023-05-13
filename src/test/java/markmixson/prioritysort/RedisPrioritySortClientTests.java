@@ -26,15 +26,12 @@ public class RedisPrioritySortClientTests {
             List.of(THIRD, FOURTH, FIRST, FIFTH, SIXTH, SECOND);
 
     @Autowired
-    private RedisPrioritySortMutationClient mutationClient;
-
-    @Autowired
-    private RedisPrioritySortQueryClient queryClient;
+    RedisPrioritySortClient client;
 
     public static void doAddOrUpdateTestData(@NonNull final String suffix,
-                                             @NonNull final PrioritySortMutationClient client) {
+                                             @NonNull final RedisPrioritySortClient client) {
         final var results = RULE_MATCH_RESULTS_SCRAMBLED.parallelStream()
-                .map(result -> client.addOrUpdate(suffix, result).block())
+                .map(result -> client.mutation().addOrUpdate(suffix, result).block())
                 .toList();
         Assertions.assertEquals(RULE_MATCH_RESULTS_SCRAMBLED.size(), results.size());
     }

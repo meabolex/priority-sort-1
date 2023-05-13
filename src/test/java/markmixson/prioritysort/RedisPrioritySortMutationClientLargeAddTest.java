@@ -40,16 +40,16 @@ public class RedisPrioritySortMutationClientLargeAddTest extends RedisPrioritySo
     @Test
     @EnabledIfEnvironmentVariable(named = "RUN_BIG_TESTS", matches = "true")
     void testLargeNumberOfAdds() {
-        StepVerifier.create(getMutationClient().addOrUpdate(LARGE_ADD_SUFFIX, HIGHEST_POSSIBLE))
+        StepVerifier.create(getClient().mutation().addOrUpdate(LARGE_ADD_SUFFIX, HIGHEST_POSSIBLE))
                 .expectNext(1L)
                 .expectComplete()
                 .verify();
         doLargeNumberOfAdds();
-        StepVerifier.create(getQueryClient().getTopPriority(LARGE_ADD_SUFFIX))
+        StepVerifier.create(getClient().query().getTopPriority(LARGE_ADD_SUFFIX))
                 .expectNext(Long.MAX_VALUE)
                 .expectComplete()
                 .verify();
-        StepVerifier.create(getQueryClient().getIndexCount(LARGE_ADD_SUFFIX))
+        StepVerifier.create(getClient().query().getIndexCount(LARGE_ADD_SUFFIX))
                 .expectNext((long) (LARGE_DATA_COUNT + 1))
                 .expectComplete()
                 .verify();
@@ -59,7 +59,7 @@ public class RedisPrioritySortMutationClientLargeAddTest extends RedisPrioritySo
     private void doLargeNumberOfAdds() {
         final var results = getRandomIds().stream()
                 .<Callable<Void>>map(id -> () -> {
-                    getMutationClient().addOrUpdate(LARGE_ADD_SUFFIX, getRandomRuleMatchResults(id)).block();
+                    getClient().mutation().addOrUpdate(LARGE_ADD_SUFFIX, getRandomRuleMatchResults(id)).block();
                     return null;
                 })
                 .toList();
