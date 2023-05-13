@@ -1,33 +1,34 @@
 package markmixson.prioritysort;
 
-import io.lettuce.core.Range;
 import io.lettuce.core.ScriptOutputType;
 import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.support.BoundedAsyncPool;
+import io.lettuce.core.support.AsyncPool;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.intellij.lang.annotations.Language;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Client for making mutations for priority sorts.
+ */
 @Component
 @RequiredArgsConstructor
-@Getter(AccessLevel.PRIVATE)
-public class RedisPrioritySortClient implements PrioritySortClient {
+public class RedisPrioritySortMutationClient
+        extends AbstractRedisPrioritySortClient
+        implements PrioritySortMutationClient {
 
     @Language("lua")
     private static final String ADD_UPDATE_LUA_SCRIPT = """
             local indexname, setname, id = unpack(KEYS)
-            local data = unpack(ARGV)
             local previous = redis.call('hget', setname, id)
             if previous then
                 redis.call('zrem', indexname, previous)
                 redis.call('hdel', setname, id)
             end
+            local data = unpack(ARGV)
             local output = redis.call('zadd', indexname, 0, data)
             redis.call('hset', setname, id, data)
             return output
@@ -42,19 +43,12 @@ public class RedisPrioritySortClient implements PrioritySortClient {
             return output
             """;
 
-    private final BoundedAsyncPool<StatefulRedisConnection<String, byte[]>> connectionPool;
-
-    @SuppressWarnings("SpringElInspection")
-    @Value("${priority-sort.index-name:prioritysort}")
-    private String prioritySortIndexName;
-
-    @SuppressWarnings("SpringElInspection")
-    @Value("${priority-sort.set-name:prioritysort.content}")
-    private String prioritySortSetName;
+    @Getter(AccessLevel.PRIVATE)
+    private final AsyncPool<StatefulRedisConnection<String, byte[]>> connectionPool;
 
     @Override
-    public Mono<Long> addOrUpdate(@NonNull final RuleMatchResults results) {
-        final var keys = new String[]{getPrioritySortIndexName(), getPrioritySortSetName(), results.id().toString()};
+    public Mono<Long> addOrUpdate(@NonNull final String suffix, @NonNull final RuleMatchResults results) {
+        final var keys = new String[]{getIndexName(suffix), getSetName(suffix), results.id().toString()};
         final var values = new byte[][]{results.toByteArray()};
         return Mono.fromFuture(() -> getConnectionPool().acquire())
                 .flatMap(connection -> connection.reactive()
@@ -63,8 +57,8 @@ public class RedisPrioritySortClient implements PrioritySortClient {
     }
 
     @Override
-    public Mono<Long> delete(long id) {
-        final var keys = new String[]{getPrioritySortIndexName(), getPrioritySortSetName(), Long.toString(id)};
+    public Mono<Long> delete(@NonNull final String suffix, final long id) {
+        final var keys = new String[]{getIndexName(suffix), getSetName(suffix), Long.toString(id)};
         return Mono.fromFuture(() -> getConnectionPool().acquire())
                 .flatMap(connection -> connection.reactive()
                         .<Long>eval(DEL_LUA_SCRIPT, ScriptOutputType.INTEGER, keys).next()
@@ -72,30 +66,9 @@ public class RedisPrioritySortClient implements PrioritySortClient {
     }
 
     @Override
-    public Mono<Long> clear() {
+    public Mono<Long> clear(@NonNull final String suffix) {
         return Mono.fromFuture(() -> getConnectionPool().acquire())
-                .flatMap(connection -> connection.reactive().del(getPrioritySortIndexName(), getPrioritySortSetName())
-                        .doFinally(signal -> getConnectionPool().release(connection)));
-    }
-
-    @Override
-    public Mono<Long> getTopPriority() {
-        return getTopPriorities(1).next();
-    }
-
-    @Override
-    public Flux<Long> getTopPriorities(long count) {
-        return Mono.fromFuture(() -> getConnectionPool().acquire())
-                .flatMapMany(connection -> connection.reactive().zrange(getPrioritySortIndexName(), 0, count)
-                        .doFinally(signal -> getConnectionPool().release(connection)))
-                .map(RuleMatchResults::getRuleMatchResults)
-                .map(RuleMatchResults::id);
-    }
-
-    @Override
-    public Mono<Long> getIndexCount() {
-        return Mono.fromFuture(() -> getConnectionPool().acquire())
-                .flatMap(connection -> connection.reactive().zcount(getPrioritySortIndexName(), Range.unbounded())
+                .flatMap(connection -> connection.reactive().del(getIndexName(suffix), getSetName(suffix))
                         .doFinally(signal -> getConnectionPool().release(connection)));
     }
 }

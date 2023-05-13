@@ -2,6 +2,7 @@ package markmixson.prioritysort;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
@@ -12,6 +13,7 @@ import java.util.stream.Stream;
 /**
  * Gets a {@link BitSet} that can be used inside {@link RuleMatchResults}.
  */
+@NoArgsConstructor
 public class BitSetGenerator {
 
     @Getter(AccessLevel.PRIVATE)

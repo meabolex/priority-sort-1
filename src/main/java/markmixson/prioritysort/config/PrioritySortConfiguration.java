@@ -1,10 +1,11 @@
 package markmixson.prioritysort.config;
 
+import io.lettuce.core.support.AsyncPool;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.google.common.util.concurrent.Futures;
 
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
@@ -21,7 +22,8 @@ import lombok.Getter;
  * Redis connection pool settings.
  */
 @Configuration
-@Getter
+@Getter(AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class PrioritySortConfiguration {
 
     @SuppressWarnings("SpringElInspection")
@@ -34,17 +36,17 @@ public class PrioritySortConfiguration {
     /**
      * The Redis Connection Pool settings.
      * 
-     * @return a {@link BoundedAsyncPool} for connections.
+     * @return a {@link AsyncPool} for connections.
      */
     @Bean
-    public BoundedAsyncPool<StatefulRedisConnection<String, byte[]>> connectionPool() {
+    public AsyncPool<StatefulRedisConnection<String, byte[]>> connectionPool() {
         final var uri = RedisURI.create(getRedisHost(), getRedisPort());
         @SuppressWarnings("resource") final var client = RedisClient.create(uri);
         final var codec = RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE);
         final var config = BoundedPoolConfig.builder()
                 .maxTotal(Runtime.getRuntime().availableProcessors())
                 .build();
-        return Futures.getUnchecked(AsyncConnectionPoolSupport.createBoundedObjectPoolAsync(
-                () -> client.connectAsync(codec, uri), config).toCompletableFuture());
+        return AsyncConnectionPoolSupport.createBoundedObjectPoolAsync(
+                () -> client.connectAsync(codec, uri), config).toCompletableFuture().join();
     }
 }
