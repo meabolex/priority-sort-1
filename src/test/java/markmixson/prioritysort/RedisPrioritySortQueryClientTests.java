@@ -1,7 +1,7 @@
 package markmixson.prioritysort;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;;
+import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 import static markmixson.prioritysort.RedisPrioritySortClientTestData.FIRST;

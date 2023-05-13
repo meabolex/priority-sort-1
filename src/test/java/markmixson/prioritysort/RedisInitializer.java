@@ -3,7 +3,6 @@ package markmixson.prioritysort;
 import java.util.List;
 
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.containers.GenericContainer;
