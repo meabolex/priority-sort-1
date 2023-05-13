@@ -14,7 +14,7 @@ public class RedisPrioritySortQueryClientTests extends RedisPrioritySortClientTe
 
     @BeforeEach
     void setUp() {
-        doAddOrUpdateTestData(QUERY_SUFFIX, getClient());
+        doAddOrUpdateTestData(QUERY_SUFFIX);
     }
 
     @AfterEach

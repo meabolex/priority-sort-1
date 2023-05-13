@@ -45,7 +45,7 @@ public class RedisPrioritySortMutationClientTests extends RedisPrioritySortClien
 
         @BeforeEach
         void setUp() {
-            doAddOrUpdateTestData(MUTATION_SUFFIX, getClient());
+            doAddOrUpdateTestData(MUTATION_SUFFIX);
         }
 
         @Test

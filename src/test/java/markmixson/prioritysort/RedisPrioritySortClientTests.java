@@ -28,10 +28,9 @@ public class RedisPrioritySortClientTests {
     @Autowired
     RedisPrioritySortClient client;
 
-    public static void doAddOrUpdateTestData(@NonNull final String suffix,
-                                             @NonNull final RedisPrioritySortClient client) {
+    public void doAddOrUpdateTestData(@NonNull final String suffix) {
         final var results = RULE_MATCH_RESULTS_SCRAMBLED.parallelStream()
-                .map(result -> client.mutation().addOrUpdate(suffix, result).block())
+                .map(result -> getClient().mutation().addOrUpdate(suffix, result).block())
                 .toList();
         Assertions.assertEquals(RULE_MATCH_RESULTS_SCRAMBLED.size(), results.size());
     }
