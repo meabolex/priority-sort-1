@@ -22,7 +22,7 @@ import static markmixson.prioritysort.RedisPrioritySortClientTestData.THIRD;
 @ContextConfiguration(initializers = RedisInitializer.class)
 public class RedisPrioritySortClientTests {
 
-    private static final List<RuleMatchResults> RULE_MATCH_RESULTS_SCRAMBLED =
+    protected static final List<RuleMatchResults> RULE_MATCH_RESULTS_SCRAMBLED =
             List.of(THIRD, FOURTH, FIRST, FIFTH, SIXTH, SECOND);
 
     @Autowired

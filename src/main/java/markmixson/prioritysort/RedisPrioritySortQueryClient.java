@@ -56,4 +56,21 @@ public class RedisPrioritySortQueryClient
                 .flatMap(connection -> connection.reactive().zcount(getIndexName(suffix), Range.unbounded())
                         .doFinally(signal -> getConnectionPool().release(connection)));
     }
+
+    @Override
+    public Mono<RuleMatchResults> getRuleMatchResults(@NonNull final String suffix, long id) {
+        return Mono.fromFuture(() -> getConnectionPool().acquire())
+                .flatMap(connection -> connection.reactive().hget(getSetName(suffix), Long.toString(id))
+                        .doFinally(signal -> getConnectionPool().release(connection)))
+                .map(RuleMatchResults::getRuleMatchResults);
+    }
+
+    @Override
+    public Flux<RuleMatchResults> getAllRuleMatchResults(@NonNull String suffix) {
+        return Mono.fromFuture(() -> getConnectionPool().acquire())
+                .flatMapMany(connection ->
+                        connection.reactive().hvals(getSetName(suffix))
+                                .doFinally(signal -> getConnectionPool().release(connection)))
+                .map(RuleMatchResults::getRuleMatchResults);
+    }
 }

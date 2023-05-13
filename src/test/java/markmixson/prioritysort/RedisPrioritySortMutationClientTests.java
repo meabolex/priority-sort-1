@@ -1,6 +1,8 @@
 package markmixson.prioritysort;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
@@ -38,54 +40,60 @@ public class RedisPrioritySortMutationClientTests extends RedisPrioritySortClien
                 .verify();
     }
 
-    @Test
-    void testClear() {
-        doAddOrUpdateTestData(MUTATION_SUFFIX, getMutationClient());
-        StepVerifier.create(getMutationClient().clear(MUTATION_SUFFIX))
-                .expectNextMatches(result -> result > 0)
-                .expectComplete()
-                .verify();
-        StepVerifier.create(getQueryClient().getTopPriority(MUTATION_SUFFIX))
-                .expectNextCount(0)
-                .expectComplete()
-                .verify();
-    }
+    @Nested
+    protected class WithBeforeEach {
 
-    @Test
-    void testDelete() {
-        doAddOrUpdateTestData(MUTATION_SUFFIX, getMutationClient());
-        StepVerifier.create(getMutationClient().delete(MUTATION_SUFFIX, FIRST.id()))
-                .expectNextMatches(result -> result == 1L)
-                .expectComplete()
-                .verify();
-        StepVerifier.create(getQueryClient().getTopPriority(MUTATION_SUFFIX))
-                .expectNext(SECOND.id())
-                .expectComplete()
-                .verify();
-    }
+        @BeforeEach
+        void setUp() {
+            doAddOrUpdateTestData(MUTATION_SUFFIX, getMutationClient());
+        }
 
-    @Test
-    void testUpdate() {
-        doAddOrUpdateTestData(MUTATION_SUFFIX, getMutationClient());
-        StepVerifier.create(getQueryClient().getTopPriority(MUTATION_SUFFIX))
-                .expectNext(FIRST.id())
-                .expectComplete()
-                .verify();
-        StepVerifier.create(getMutationClient().addOrUpdate(MUTATION_SUFFIX, UPDATED_FIRST))
-                .expectNext(1L)
-                .expectComplete()
-                .verify();
-        StepVerifier.create(getQueryClient().getTopPriority(MUTATION_SUFFIX))
-                .expectNext(SECOND.id())
-                .expectComplete()
-                .verify();
-        StepVerifier.create(getMutationClient().delete(MUTATION_SUFFIX, FIRST.id()))
-                .expectNextMatches(result -> result == 1L)
-                .expectComplete()
-                .verify();
-        StepVerifier.create(getQueryClient().getIndexCount(MUTATION_SUFFIX))
-                .expectNext((long) RULE_MATCH_RESULTS.size() - 1)
-                .expectComplete()
-                .verify();
+        @Test
+        void testClear() {
+            StepVerifier.create(getMutationClient().clear(MUTATION_SUFFIX))
+                    .expectNextMatches(result -> result > 0)
+                    .expectComplete()
+                    .verify();
+            StepVerifier.create(getQueryClient().getTopPriority(MUTATION_SUFFIX))
+                    .expectNextCount(0)
+                    .expectComplete()
+                    .verify();
+        }
+
+        @Test
+        void testDelete() {
+            StepVerifier.create(getMutationClient().delete(MUTATION_SUFFIX, FIRST.id()))
+                    .expectNextMatches(result -> result == 1L)
+                    .expectComplete()
+                    .verify();
+            StepVerifier.create(getQueryClient().getTopPriority(MUTATION_SUFFIX))
+                    .expectNext(SECOND.id())
+                    .expectComplete()
+                    .verify();
+        }
+
+        @Test
+        void testUpdate() {
+            StepVerifier.create(getQueryClient().getTopPriority(MUTATION_SUFFIX))
+                    .expectNext(FIRST.id())
+                    .expectComplete()
+                    .verify();
+            StepVerifier.create(getMutationClient().addOrUpdate(MUTATION_SUFFIX, UPDATED_FIRST))
+                    .expectNext(1L)
+                    .expectComplete()
+                    .verify();
+            StepVerifier.create(getQueryClient().getTopPriority(MUTATION_SUFFIX))
+                    .expectNext(SECOND.id())
+                    .expectComplete()
+                    .verify();
+            StepVerifier.create(getMutationClient().delete(MUTATION_SUFFIX, FIRST.id()))
+                    .expectNextMatches(result -> result == 1L)
+                    .expectComplete()
+                    .verify();
+            StepVerifier.create(getQueryClient().getIndexCount(MUTATION_SUFFIX))
+                    .expectNext((long) RULE_MATCH_RESULTS.size() - 1)
+                    .expectComplete()
+                    .verify();
+        }
     }
 }

@@ -50,4 +50,21 @@ public interface PrioritySortQueryClient {
      * @return a {@link Mono} representing the count of priorities in the index.
      */
     Mono<Long> getIndexCount(@NonNull String suffix);
+
+    /**
+     * Gets {@link RuleMatchResults} based on the given id.
+     *
+     * @param suffix the suffix to use on the redis key.
+     * @param id the id to look up.
+     * @return the results.
+     */
+    Mono<RuleMatchResults> getRuleMatchResults(@NonNull String suffix, long id);
+
+    /**
+     * Gets all {@link RuleMatchResults}.
+     *
+     * @param suffix the suffix to use on the redis key.
+     * @return the results.
+     */
+    Flux<RuleMatchResults> getAllRuleMatchResults(@NonNull String suffix);
 }
