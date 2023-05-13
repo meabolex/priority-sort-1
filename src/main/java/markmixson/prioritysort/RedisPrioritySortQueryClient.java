@@ -24,9 +24,12 @@ public class RedisPrioritySortQueryClient
     private final AsyncPool<StatefulRedisConnection<String, byte[]>> connectionPool;
 
     @Override
-    public Mono<Long> getTopPriority(@NonNull final String suffix) {
-        return getTopPriorities(suffix, 1)
-                .next();
+    public Flux<RuleMatchResults> getTopPriorityRuleMatchResults(@NonNull final String suffix, final long count) {
+        return Mono.fromFuture(() -> getConnectionPool().acquire())
+                .flatMapMany(connection ->
+                        connection.reactive().zrange(getIndexName(suffix), 0, count)
+                                .doFinally(signal -> getConnectionPool().release(connection)))
+                .map(RuleMatchResults::getRuleMatchResults);
     }
 
     @Override
@@ -36,18 +39,15 @@ public class RedisPrioritySortQueryClient
     }
 
     @Override
-    public Mono<RuleMatchResults> getTopPriorityRuleMatchResult(@NonNull final String suffix) {
-        return getTopPriorityRuleMatchResults(suffix, 1)
+    public Mono<Long> getTopPriority(@NonNull final String suffix) {
+        return getTopPriorities(suffix, 1)
                 .next();
     }
 
     @Override
-    public Flux<RuleMatchResults> getTopPriorityRuleMatchResults(@NonNull final String suffix, final long count) {
-        return Mono.fromFuture(() -> getConnectionPool().acquire())
-                .flatMapMany(connection ->
-                        connection.reactive().zrange(getIndexName(suffix), 0, count)
-                                .doFinally(signal -> getConnectionPool().release(connection)))
-                .map(RuleMatchResults::getRuleMatchResults);
+    public Mono<RuleMatchResults> getTopPriorityRuleMatchResult(@NonNull final String suffix) {
+        return getTopPriorityRuleMatchResults(suffix, 1)
+                .next();
     }
 
     @Override
