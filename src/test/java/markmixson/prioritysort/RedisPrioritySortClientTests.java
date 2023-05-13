@@ -28,7 +28,7 @@ public class RedisPrioritySortClientTests {
     @Autowired
     RedisPrioritySortClient client;
 
-    public void doAddOrUpdateTestData(@NonNull final String suffix) {
+    protected void doAddOrUpdateTestData(@NonNull final String suffix) {
         final var results = RULE_MATCH_RESULTS_SCRAMBLED.parallelStream()
                 .map(result -> getClient().mutation().addOrUpdate(suffix, result).block())
                 .toList();
