@@ -66,7 +66,7 @@ public class RedisPrioritySortQueryClient
     }
 
     @Override
-    public Flux<RuleMatchResults> getAllRuleMatchResults(@NonNull String suffix) {
+    public Flux<RuleMatchResults> getAllRuleMatchResults(@NonNull final String suffix) {
         return Mono.fromFuture(() -> getConnectionPool().acquire())
                 .flatMapMany(connection ->
                         connection.reactive().hvals(getSetName(suffix))
