@@ -37,11 +37,11 @@ public class PrioritySortConfiguration {
      * @return a {@link AsyncPool} for connections.
      */
     @Bean
-    @SuppressWarnings("resource")
     public AsyncPool<StatefulRedisConnection<String, byte[]>> connectionPool() {
         final var uri = RedisURI.create(getRedisHost(), getRedisPort());
-        return AsyncConnectionPoolSupport.createBoundedObjectPool(() -> RedisClient.create(uri)
-                        .connectAsync(RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE), uri),
+        @SuppressWarnings("resource") final var client = RedisClient.create(uri);
+        return AsyncConnectionPoolSupport.createBoundedObjectPool(() ->
+                        client.connectAsync(RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE), uri),
                 BoundedPoolConfig.builder()
                         .maxTotal(Runtime.getRuntime().availableProcessors())
                         .build());
