@@ -12,7 +12,7 @@ import java.util.BitSet;
 /**
  * Record representing rule match results.
  */
-record RuleMatchResults(@NonNull BitSet matched, @NonNull ZonedDateTime date, @NonNull Long id) {
+public record RuleMatchResults(@NonNull BitSet matched, @NonNull ZonedDateTime date, @NonNull Long id) {
 
     /**
      * Converts the record into a big-endian byte format.
