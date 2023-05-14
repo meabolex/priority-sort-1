@@ -14,6 +14,8 @@ import reactor.core.publisher.Mono;
 public class RedisPrioritySortQueryClient
         extends RedisPrioritySortClient
         implements PrioritySortQueryClient {
+    private static final int START = 0;
+    private static final int SINGLE = 1;
 
     /**
      * Sets up client with connection pool.
@@ -26,7 +28,7 @@ public class RedisPrioritySortQueryClient
 
     @Override
     public Flux<RuleMatchResults> getTopPriorityRuleMatchResults(final String keySuffix, final long count) {
-        return runMany(redis -> redis.zrange(getIndexName(keySuffix), 0, count))
+        return runMany(redis -> redis.zrange(getIndexName(keySuffix), START, count))
                 .map(RuleMatchResults::getRuleMatchResults);
     }
 
@@ -38,13 +40,13 @@ public class RedisPrioritySortQueryClient
 
     @Override
     public Mono<Long> getTopPriority(final String keySuffix) {
-        return getTopPriorities(keySuffix, 1)
+        return getTopPriorities(keySuffix, SINGLE)
                 .next();
     }
 
     @Override
     public Mono<RuleMatchResults> getTopPriorityRuleMatchResult(final String keySuffix) {
-        return getTopPriorityRuleMatchResults(keySuffix, 1)
+        return getTopPriorityRuleMatchResults(keySuffix, SINGLE)
                 .next();
     }
 

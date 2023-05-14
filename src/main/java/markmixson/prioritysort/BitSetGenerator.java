@@ -44,10 +44,6 @@ public class BitSetGenerator {
         }
         final var range = Range.between(0, length - 1);
         Preconditions.checkArgument(Arrays.stream(values).allMatch(range::contains));
-        return generateValidBitSet(values, length);
-    }
-
-    private BitSet generateValidBitSet(final int[] values, final int length) {
         final var allBitsTrueSize = getLengthRoundedUpToNearestByte(length);
         final var bitSet = getFlippedBitSet(allBitsTrueSize);
         Arrays.stream(values).forEach(bitSet::flip);
