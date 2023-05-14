@@ -25,11 +25,11 @@ public class RedisPrioritySortClientTests {
             List.of(THIRD, FOURTH, FIRST, FIFTH, SIXTH, SECOND);
 
     @Autowired
-    RedisPrioritySortClient client;
+    RedisPrioritySortClients clients;
 
     protected void doAddOrUpdateTestData(@NonNull final String suffix) {
         RULE_MATCH_RESULTS_SCRAMBLED.parallelStream()
-                .forEach(result -> getClient().getMutation().addOrUpdate(suffix, result)
+                .forEach(result -> getClients().getMutation().addOrUpdate(suffix, result)
                         .block());
     }
 }

@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
  */
 @Component
 public class RedisPrioritySortMutationClient
-        extends AbstractRedisPrioritySortClient
+        extends RedisPrioritySortClient
         implements PrioritySortMutationClient {
 
     /**
