@@ -14,6 +14,13 @@ public class BitSetGeneratorTests {
     }
 
     @Test
+    @SuppressWarnings("ConstantConditions")
+    void testGeneratorNullValues() {
+        Assertions.assertThrows(NullPointerException.class, () ->
+                new BitSetGenerator().generate(null, 99));
+    }
+
+    @Test
     void testGeneratorChangeLengths() {
         final var generator = new BitSetGenerator();
         final var first = generator.generate(IntStream.range(0, 7).toArray(), 8);

@@ -54,7 +54,7 @@ public class RedisPrioritySortQueryClient
     }
 
     @Override
-    public Mono<RuleMatchResults> getRuleMatchResults(final String keySuffix, long id) {
+    public Mono<RuleMatchResults> getRuleMatchResults(final String keySuffix, final long id) {
         return runSingle(redis -> redis.hget(getSetName(keySuffix), Long.toString(id)))
                 .map(RuleMatchResults::getRuleMatchResults);
     }

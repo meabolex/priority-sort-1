@@ -24,10 +24,16 @@ import org.springframework.context.annotation.Configuration;
 @NoArgsConstructor
 public class PrioritySortConfiguration {
 
+    /**
+     * Redis host name.
+     */
     @SuppressWarnings("SpringElInspection")
     @Value("${spring.data.redis.host:localhost}")
     private String redisHost;
 
+    /**
+     * Redis port.
+     */
     @Value("#{new Integer('${spring.data.redis.port:6379}')}")
     private Integer redisPort;
 

@@ -22,12 +22,21 @@ import java.util.function.Function;
 @SuppressWarnings("SpringElInspection")
 public class RedisPrioritySortClient {
 
+    /**
+     * Prefix for indexes.
+     */
     @Value("${priority-sort.index-name-prefix:prioritysort}")
     private String indexNamePrefix;
 
+    /**
+     * Prefix for sets.
+     */
     @Value("${priority-sort.set-name-prefix:prioritysort.content}")
     private String setNamePrefix;
 
+    /**
+     * Connection pool.
+     */
     private final AsyncPool<StatefulRedisConnection<String, byte[]>> pool;
 
     /**

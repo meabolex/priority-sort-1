@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import org.apache.commons.lang3.Range;
 
@@ -17,6 +18,9 @@ import java.util.stream.Stream;
 @NoArgsConstructor
 public class BitSetGenerator {
 
+    /**
+     * Cached {@link BitSet} used when requesting same cardinality repeatedly.
+     */
     @Getter(AccessLevel.PRIVATE)
     @Setter(AccessLevel.PRIVATE)
     private BitSet cachedBitSet;
@@ -33,13 +37,13 @@ public class BitSetGenerator {
      * @param length the requested length.
      * @return the bitset
      */
-    public BitSet generate(final int[] values, final int length) {
+    public BitSet generate(final int @NonNull [] values, final int length) {
         if (length <= 0) {
             return new BitSet(0);
         }
         final var range = Range.between(0, length - 1);
         Preconditions.checkArgument(Arrays.stream(values).allMatch(range::contains));
-        int allBitsTrueSize = length % Byte.SIZE == 0 ? length : length + Byte.SIZE - length % Byte.SIZE;
+        final int allBitsTrueSize = length % Byte.SIZE == 0 ? length : length + Byte.SIZE - length % Byte.SIZE;
         final var bitSet = getMostlyFlippedBitSet(allBitsTrueSize);
         Arrays.stream(values).forEach(bitSet::flip);
         return bitSet;
