@@ -51,12 +51,12 @@ public class RedisPrioritySortMutationClient
      *
      * @param pool the connection pool.
      */
-    public RedisPrioritySortMutationClient(@NonNull final AsyncPool<StatefulRedisConnection<String, byte[]>> pool) {
+    public RedisPrioritySortMutationClient(final AsyncPool<StatefulRedisConnection<String, byte[]>> pool) {
         super(pool);
     }
 
     @Override
-    public Mono<Long> addOrUpdate(@NonNull final String keySuffix, @NonNull final RuleMatchResults results) {
+    public Mono<Long> addOrUpdate(final String keySuffix, @NonNull final RuleMatchResults results) {
         final var keys = new String[]{getIndexName(keySuffix), getSetName(keySuffix), results.id().toString()};
         final var values = new byte[][]{results.toByteArray()};
         return runMany(redis -> redis.<Long>eval(ADD_UPDATE_LUA_SCRIPT, ScriptOutputType.INTEGER, keys, values))
@@ -64,14 +64,14 @@ public class RedisPrioritySortMutationClient
     }
 
     @Override
-    public Mono<Long> delete(@NonNull final String keySuffix, final long id) {
+    public Mono<Long> delete(final String keySuffix, final long id) {
         final var keys = new String[]{getIndexName(keySuffix), getSetName(keySuffix), Long.toString(id)};
         return runMany(redis -> redis.<Long>eval(DEL_LUA_SCRIPT, ScriptOutputType.INTEGER, keys))
                 .next();
     }
 
     @Override
-    public Mono<Long> clear(@NonNull final String keySuffix) {
+    public Mono<Long> clear(final String keySuffix) {
         return runSingle(redis -> redis.del(getIndexName(keySuffix), getSetName(keySuffix)));
     }
 }

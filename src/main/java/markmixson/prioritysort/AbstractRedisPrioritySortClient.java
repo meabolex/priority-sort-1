@@ -1,12 +1,13 @@
 package markmixson.prioritysort;
 
+import com.google.common.base.Preconditions;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.reactive.RedisReactiveCommands;
 import io.lettuce.core.support.AsyncPool;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,8 +37,7 @@ public abstract class AbstractRedisPrioritySortClient {
      * @param <T>   the type of the result
      * @return the result
      */
-    protected <T> Mono<T> runSingle(
-            @NonNull final Function<RedisReactiveCommands<String, byte[]>, Mono<T>> toRun) {
+    protected <T> Mono<T> runSingle(final Function<RedisReactiveCommands<String, byte[]>, Mono<T>> toRun) {
         return Mono.fromFuture(() -> getPool().acquire())
                 .flatMap(connection -> toRun.apply(connection.reactive())
                         .doFinally(signal -> getPool().release(connection)));
@@ -50,8 +50,7 @@ public abstract class AbstractRedisPrioritySortClient {
      * @param <T>   the type of the result
      * @return the results
      */
-    protected <T> Flux<T> runMany(
-            @NonNull final Function<RedisReactiveCommands<String, byte[]>, Flux<T>> toRun) {
+    protected <T> Flux<T> runMany(final Function<RedisReactiveCommands<String, byte[]>, Flux<T>> toRun) {
         return Mono.fromFuture(() -> getPool().acquire())
                 .flatMapMany(connection -> toRun.apply(connection.reactive())
                         .doFinally(signal -> getPool().release(connection)));
@@ -63,8 +62,8 @@ public abstract class AbstractRedisPrioritySortClient {
      * @param suffix suffix to add to name.
      * @return the index name.
      */
-    protected String getIndexName(@NonNull final String suffix) {
-        return String.format("%s.%s", getIndexNamePrefix(), suffix);
+    protected String getIndexName(final String suffix) {
+        return getName(getIndexNamePrefix(), suffix);
     }
 
     /**
@@ -73,7 +72,13 @@ public abstract class AbstractRedisPrioritySortClient {
      * @param suffix suffix to add to name.
      * @return the set name.
      */
-    protected String getSetName(@NonNull final String suffix) {
-        return String.format("%s.%s", getSetNamePrefix(), suffix);
+    protected String getSetName(final String suffix) {
+        return getName(getSetNamePrefix(), suffix);
+    }
+
+    private String getName(final String prefix, final String suffix) {
+        Preconditions.checkArgument(StringUtils.isNotEmpty(prefix));
+        Preconditions.checkArgument(StringUtils.isNotEmpty(suffix));
+        return String.format("%s.%s", prefix, suffix);
     }
 }

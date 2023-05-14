@@ -92,8 +92,62 @@ public class RedisPrioritySortClientTestData {
      */
     public static final RuleMatchResults ZERO_MATCHES = RuleMatchResults.builder()
             .matched(GENERATOR.generate(new int[]{}, 1))
-            .date(ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()))
+            .date(ZonedDateTime.ofInstant(CLOCK.instant().minus(Duration.ofSeconds(30)), CLOCK.getZone()))
             .id(0L)
+            .build();
+
+    /**
+     * 0 matches but later.
+     */
+    public static final RuleMatchResults ZERO_MATCHES_EARLIER = RuleMatchResults.builder()
+            .matched(GENERATOR.generate(new int[]{}, 1))
+            .date(ZonedDateTime.ofInstant(CLOCK.instant().minus(Duration.ofDays(30)), CLOCK.getZone()))
+            .id(-1L)
+            .build();
+
+    /**
+     * 0 matches no length.
+     */
+    public static final RuleMatchResults ZERO_MATCHES_NO_LENGTH = RuleMatchResults.builder()
+            .matched(GENERATOR.generate(new int[]{}, 0))
+            .date(ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()))
+            .id(-99999L)
+            .build();
+
+    /**
+     * 1 match, 1 didn't
+     */
+    public static final RuleMatchResults ONE_MATCH_ONE_DID_NOT = RuleMatchResults.builder()
+            .matched(GENERATOR.generate(new int[]{1}, 2))
+            .date(ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()))
+            .id(113413532L)
+            .build();
+
+    /**
+     * 2 matches
+     */
+    public static final RuleMatchResults TWO_MATCHES = RuleMatchResults.builder()
+            .matched(GENERATOR.generate(new int[]{0, 1}, 2))
+            .date(ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()))
+            .id(1234234L)
+            .build();
+
+    /**
+     * 7 out of 8 matches
+     */
+    public static final RuleMatchResults SEVEN_OUT_OF_EIGHT_MATCHES = RuleMatchResults.builder()
+            .matched(GENERATOR.generate(new int[]{0, 1, 2, 3, 4, 5, 6}, 8))
+            .date(ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()))
+            .id(-113413532L)
+            .build();
+
+    /**
+     * 8 matches
+     */
+    public static final RuleMatchResults EIGHT_MATCHES = RuleMatchResults.builder()
+            .matched(GENERATOR.generate(new int[]{0, 1, 2, 3, 4, 5, 6, 7}, 8))
+            .date(ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()))
+            .id(-1234234L)
             .build();
 
     /**

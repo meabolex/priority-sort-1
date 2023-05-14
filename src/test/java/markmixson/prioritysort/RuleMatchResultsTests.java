@@ -38,9 +38,12 @@ public class RuleMatchResultsTests {
     }
 
     @Test
+    @SuppressWarnings("ConstantConditions")
     void testBadGetRuleMatchResultsEmpty() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 RuleMatchResults.getRuleMatchResults(new byte[]{}));
+        Assertions.assertThrows(NullPointerException.class, () ->
+                RuleMatchResults.getRuleMatchResults(null));
     }
 
     private static BitSet getRandomBitSet(final int ruleSize) {

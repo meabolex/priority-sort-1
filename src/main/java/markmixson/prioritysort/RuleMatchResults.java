@@ -1,5 +1,6 @@
 package markmixson.prioritysort;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Bytes;
 import lombok.Builder;
 import lombok.NonNull;
@@ -20,31 +21,15 @@ public record RuleMatchResults(
         @NonNull Long id) {
 
     /**
-     * Converts the record into a big-endian byte format.
-     *
-     * @return a {@link byte[]} representing the {@link RuleMatchResults}.
-     */
-    public byte[] toByteArray() {
-        final var buffer = ByteBuffer.allocate(Long.BYTES * 2);
-        buffer.putLong(date().toEpochSecond());
-        buffer.putLong(id());
-        return Bytes.concat(matched().toByteArray(), buffer.array());
-    }
-
-    /**
      * Given a {@link byte[]}, get a {@link RuleMatchResults} back.
+     * The byte array must have at least 2 times the amount of bytes in a long.
      *
      * @param bytes the bytes to convert.
      * @return the {@link RuleMatchResults}.
      */
     public static RuleMatchResults getRuleMatchResults(final byte @NonNull [] bytes) {
-        if (bytes.length == 0) {
-            throw new IllegalArgumentException("byte array cannot be empty!");
-        }
-        return getRuleMatchResults(ByteBuffer.wrap(bytes));
-    }
-
-    private static RuleMatchResults getRuleMatchResults(@NonNull final ByteBuffer input) {
+        Preconditions.checkArgument(bytes.length >= Long.BYTES * 2);
+        final var input = ByteBuffer.wrap(bytes);
         final var matchedSize = input.array().length - (Long.BYTES * 2);
         final var matchedSlice = input.slice(0, matchedSize);
         final var dateSlice = input.slice(matchedSize, Long.BYTES);
@@ -54,5 +39,17 @@ public record RuleMatchResults(
                 .date(ZonedDateTime.ofInstant(Instant.ofEpochSecond(dateSlice.getLong()), ZoneId.of("UTC")))
                 .id(idSlice.getLong())
                 .build();
+    }
+
+    /**
+     * Converts the record into a big-endian byte format.
+     *
+     * @return a {@link byte[]} representing the {@link RuleMatchResults}.
+     */
+    public byte[] toByteArray() {
+        final var buffer = ByteBuffer.allocate(Long.BYTES * 2)
+                .putLong(date().toEpochSecond())
+                .putLong(id());
+        return Bytes.concat(matched().toByteArray(), buffer.array());
     }
 }

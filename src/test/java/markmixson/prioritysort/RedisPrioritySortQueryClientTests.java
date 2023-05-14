@@ -65,9 +65,20 @@ public class RedisPrioritySortQueryClientTests extends RedisPrioritySortClientTe
     }
 
     @Test
-    void testAllGetRuleMatchResults() {
-        StepVerifier.create(getClient().getQuery().getAllRuleMatchResults(QUERY_SUFFIX).collectList())
+    void testGetAllRuleMatchResults() {
+        StepVerifier.create(getClient().getQuery().getTopPriorityRuleMatchResults(QUERY_SUFFIX, -1).collectList())
                 .expectNextMatches(result -> result.containsAll(RULE_MATCH_RESULTS))
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    void testAllPriorities() {
+        final var priorities = RULE_MATCH_RESULTS.stream()
+                .map(RuleMatchResults::id)
+                .toList();
+        StepVerifier.create(getClient().getQuery().getTopPriorities(QUERY_SUFFIX, -1).collectList())
+                .expectNextMatches(result -> result.containsAll(priorities))
                 .expectComplete()
                 .verify();
     }

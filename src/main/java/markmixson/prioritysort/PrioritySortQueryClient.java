@@ -1,6 +1,5 @@
 package markmixson.prioritysort;
 
-import lombok.NonNull;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -15,16 +14,17 @@ public interface PrioritySortQueryClient {
      * @param keySuffix the suffix to use on the redis key.
      * @return a {@link Mono} representing the id with the top priority.
      */
-    Mono<Long> getTopPriority(@NonNull String keySuffix);
+    Mono<Long> getTopPriority(String keySuffix);
 
     /**
      * Gets the top N priorities ids from the index in order.
+     * A negative count returns all ids in priority order.
      *
      * @param keySuffix the suffix to use on the redis key.
      * @param count     the number of priorities to get.
      * @return a {@link Flux} representing the top N priority ids.
      */
-    Flux<Long> getTopPriorities(@NonNull String keySuffix, long count);
+    Flux<Long> getTopPriorities(String keySuffix, long count);
 
     /**
      * Gets the top priority id from the index.
@@ -32,16 +32,17 @@ public interface PrioritySortQueryClient {
      * @param keySuffix the suffix to use on the redis key.
      * @return a {@link Mono} representing the id with the top priority.
      */
-    Mono<RuleMatchResults> getTopPriorityRuleMatchResult(@NonNull String keySuffix);
+    Mono<RuleMatchResults> getTopPriorityRuleMatchResult(String keySuffix);
 
     /**
      * Gets the top N priorities ids from the index in order.
+     * A negative count returns all priorities in order.
      *
      * @param keySuffix the suffix to use on the redis key.
      * @param count     the number of priorities to get.
      * @return a {@link Flux} representing the top N priority ids.
      */
-    Flux<RuleMatchResults> getTopPriorityRuleMatchResults(@NonNull String keySuffix, long count);
+    Flux<RuleMatchResults> getTopPriorityRuleMatchResults(String keySuffix, long count);
 
     /**
      * Gets the overall count of elements in the index.
@@ -49,7 +50,7 @@ public interface PrioritySortQueryClient {
      * @param keySuffix the suffix to use on the redis key.
      * @return a {@link Mono} representing the count of priorities in the index.
      */
-    Mono<Long> getIndexCount(@NonNull String keySuffix);
+    Mono<Long> getIndexCount(String keySuffix);
 
     /**
      * Gets {@link RuleMatchResults} based on the given id.
@@ -58,13 +59,5 @@ public interface PrioritySortQueryClient {
      * @param id        the id to look up.
      * @return the results.
      */
-    Mono<RuleMatchResults> getRuleMatchResults(@NonNull String keySuffix, long id);
-
-    /**
-     * Gets all {@link RuleMatchResults}.
-     *
-     * @param keySuffix the suffix to use on the redis key.
-     * @return the results.
-     */
-    Flux<RuleMatchResults> getAllRuleMatchResults(@NonNull String keySuffix);
+    Mono<RuleMatchResults> getRuleMatchResults(String keySuffix, long id);
 }

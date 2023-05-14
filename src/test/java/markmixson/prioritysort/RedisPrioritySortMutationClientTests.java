@@ -1,27 +1,20 @@
 package markmixson.prioritysort;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
-import static markmixson.prioritysort.RedisPrioritySortClientTestData.FIRST;
-import static markmixson.prioritysort.RedisPrioritySortClientTestData.ONE_MATCH;
-import static markmixson.prioritysort.RedisPrioritySortClientTestData.RULE_MATCH_RESULTS;
-import static markmixson.prioritysort.RedisPrioritySortClientTestData.SECOND;
-import static markmixson.prioritysort.RedisPrioritySortClientTestData.UPDATED_FIRST;
-import static markmixson.prioritysort.RedisPrioritySortClientTestData.ZERO_MATCHES;
+import static markmixson.prioritysort.RedisPrioritySortClientTestData.*;
 
 public class RedisPrioritySortMutationClientTests extends RedisPrioritySortClientTests {
     private static final String MUTATION_SUFFIX = "mutation";
 
     @AfterEach
     void cleanUp() {
-        StepVerifier.create(getClient().getMutation().clear(MUTATION_SUFFIX))
-                .expectNextCount(1)
-                .expectComplete()
-                .verify();
+        getClient().getMutation().clear(MUTATION_SUFFIX).block();
     }
 
     @Test
@@ -34,10 +27,67 @@ public class RedisPrioritySortMutationClientTests extends RedisPrioritySortClien
                 .expectNext(1L)
                 .expectComplete()
                 .verify();
-        StepVerifier.create(getClient().getQuery().getTopPriority(MUTATION_SUFFIX))
-                .expectNext(ONE_MATCH.id())
+        StepVerifier.create(getClient().getMutation().addOrUpdate(MUTATION_SUFFIX, ZERO_MATCHES_EARLIER))
+                .expectNext(1L)
                 .expectComplete()
                 .verify();
+        StepVerifier.create(getClient().getQuery().getTopPriorities(MUTATION_SUFFIX, 3))
+                .expectNext(ONE_MATCH.id())
+                .expectNext(ZERO_MATCHES_EARLIER.id())
+                .expectNext(ZERO_MATCHES.id())
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    void testNoRules() {
+        StepVerifier.create(getClient().getMutation().addOrUpdate(MUTATION_SUFFIX, ZERO_MATCHES_NO_LENGTH))
+                .expectNext(1L)
+                .expectComplete()
+                .verify();
+        StepVerifier.create(getClient().getQuery().getTopPriority(MUTATION_SUFFIX))
+                .expectNext(ZERO_MATCHES_NO_LENGTH.id())
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    void testTwoMatches() {
+        StepVerifier.create(getClient().getMutation().addOrUpdate(MUTATION_SUFFIX, TWO_MATCHES))
+                .expectNext(1L)
+                .expectComplete()
+                .verify();
+        StepVerifier.create(getClient().getMutation().addOrUpdate(MUTATION_SUFFIX, ONE_MATCH_ONE_DID_NOT))
+                .expectNext(1L)
+                .expectComplete()
+                .verify();
+        StepVerifier.create(getClient().getQuery().getTopPriority(MUTATION_SUFFIX))
+                .expectNext(TWO_MATCHES.id())
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    void testEightMatchesOneNone() {
+        StepVerifier.create(getClient().getMutation().addOrUpdate(MUTATION_SUFFIX, EIGHT_MATCHES))
+                .expectNext(1L)
+                .expectComplete()
+                .verify();
+        StepVerifier.create(getClient().getMutation().addOrUpdate(MUTATION_SUFFIX, SEVEN_OUT_OF_EIGHT_MATCHES))
+                .expectNext(1L)
+                .expectComplete()
+                .verify();
+        StepVerifier.create(getClient().getQuery().getTopPriority(MUTATION_SUFFIX))
+                .expectNext(EIGHT_MATCHES.id())
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    @SuppressWarnings("ConstantConditions")
+    void testNullMatchesAdd() {
+        Assertions.assertThrows(NullPointerException.class,
+                () -> getClient().getMutation().addOrUpdate(MUTATION_SUFFIX, null).block());
     }
 
     @Nested
