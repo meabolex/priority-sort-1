@@ -22,7 +22,7 @@ import static markmixson.prioritysort.RedisPrioritySortClientTestData.CLOCK;
 import static markmixson.prioritysort.RedisPrioritySortClientTestData.GENERATOR;
 import static markmixson.prioritysort.RedisPrioritySortClientTestData.RANDOM;
 
-public class RedisPrioritySortMutationClientLargeAddTest extends RedisPrioritySortClientTests {
+public class RedisPrioritySortMutationClientLargeAddTest extends RedisPrioritySortClientTest {
 
     /**
      * Increasing this value can cause problems with Redis.

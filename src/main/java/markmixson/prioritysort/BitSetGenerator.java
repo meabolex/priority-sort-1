@@ -38,13 +38,18 @@ public class BitSetGenerator {
      * @return the bitset
      */
     public BitSet generate(final int @NonNull [] values, final int length) {
-        if (length <= 0) {
+        Preconditions.checkArgument(values.length <= length);
+        if (length == 0) {
             return new BitSet(0);
         }
         final var range = Range.between(0, length - 1);
         Preconditions.checkArgument(Arrays.stream(values).allMatch(range::contains));
-        final int allBitsTrueSize = length % Byte.SIZE == 0 ? length : length + Byte.SIZE - length % Byte.SIZE;
-        final var bitSet = getMostlyFlippedBitSet(allBitsTrueSize);
+        return generateValidBitSet(values, length);
+    }
+
+    private BitSet generateValidBitSet(final int[] values, final int length) {
+        final var allBitsTrueSize = getLengthRoundedUpToNearestByte(length);
+        final var bitSet = getFlippedBitSet(allBitsTrueSize);
         Arrays.stream(values).forEach(bitSet::flip);
         return bitSet;
     }
@@ -55,7 +60,7 @@ public class BitSetGenerator {
      * @param allSetCardinality the cardinality of the bitset requested.
      * @return the bitset.
      */
-    private BitSet getMostlyFlippedBitSet(final int allSetCardinality) {
+    private BitSet getFlippedBitSet(final int allSetCardinality) {
         return (BitSet) Stream.ofNullable(getCachedBitSet())
                 .filter(mySet -> mySet.cardinality() == allSetCardinality)
                 .map(BitSet::clone)
@@ -65,5 +70,14 @@ public class BitSetGenerator {
                     getCachedBitSet().flip(0, allSetCardinality);
                     return getCachedBitSet().clone();
                 });
+    }
+
+    private int getLengthRoundedUpToNearestByte(final int length) {
+        final int mod = length % Byte.SIZE;
+        if (mod == 0) {
+            return length;
+        } else {
+            return length + Byte.SIZE - mod;
+        }
     }
 }

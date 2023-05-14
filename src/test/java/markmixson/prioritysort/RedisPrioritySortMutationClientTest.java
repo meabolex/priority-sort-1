@@ -9,7 +9,7 @@ import reactor.test.StepVerifier;
 
 import static markmixson.prioritysort.RedisPrioritySortClientTestData.*;
 
-public class RedisPrioritySortMutationClientTests extends RedisPrioritySortClientTests {
+public class RedisPrioritySortMutationClientTest extends RedisPrioritySortClientTest {
     private static final String MUTATION_SUFFIX = "mutation";
 
     @AfterEach

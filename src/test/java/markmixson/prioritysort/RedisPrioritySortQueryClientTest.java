@@ -9,7 +9,7 @@ import static markmixson.prioritysort.RedisPrioritySortClientTestData.FIFTH;
 import static markmixson.prioritysort.RedisPrioritySortClientTestData.FIRST;
 import static markmixson.prioritysort.RedisPrioritySortClientTestData.RULE_MATCH_RESULTS;
 
-public class RedisPrioritySortQueryClientTests extends RedisPrioritySortClientTests {
+public class RedisPrioritySortQueryClientTest extends RedisPrioritySortClientTest {
     private static final String QUERY_SUFFIX = "query";
 
     @BeforeEach

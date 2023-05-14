@@ -19,7 +19,7 @@ import static markmixson.prioritysort.RedisPrioritySortClientTestData.THIRD;
 @SpringBootTest
 @Getter(AccessLevel.PROTECTED)
 @ContextConfiguration(initializers = RedisInitializer.class)
-public class RedisPrioritySortClientTests {
+public class RedisPrioritySortClientTest {
 
     protected static final List<RuleMatchResults> RULE_MATCH_RESULTS_SCRAMBLED =
             List.of(THIRD, FOURTH, FIRST, FIFTH, SIXTH, SECOND);
